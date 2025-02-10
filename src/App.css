@@ -1,0 +1,24 @@
+@import "antd/dist/antd.css";
+
+
+
+
+
+/* Container to center the form vertically & horizontally */
+.login-container {
+  display: flex;
+  justify-content: center; /* centers horizontally */
+  align-items: center;     /* centers vertically */
+  min-height: 100vh;       /* makes container full viewport height */
+}
+
+/* Optional: Set a max-width for the form so it doesn't stretch too wide */
+.login-form {
+  max-width: 300px;
+  width: 100%;
+}
+.login-form-button{
+  width: 100%;
+  display: block;
+}
+
