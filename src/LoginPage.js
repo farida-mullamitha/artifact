@@ -1,41 +1,109 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
 
-const LoginPage = () => {
-  const [form] = Form.useForm();
+import { Button, Form, Grid, Input, message, theme, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from './api';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
-  const handleSubmit = values => {
-    console.log('Received values of form: ', values);
+const { useBreakpoint } = Grid;
+const { Text, Title, Link } = Typography;
+
+export default function LoginPage() {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const screens = useBreakpoint();
+
+  const onFinish = async values => {
+    setLoading(true);
+    try {
+      const data = await loginUser(values.username, values.password);
+      if (data?.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+        navigate('/home');
+      } else {
+        message.error('Login failed: No token received');
+      }
+    } catch (error) {
+      message.error(error.message || 'Login failed');
+    }
+    setLoading(false);
+  };
+
+  const styles = {
+    container: {
+      margin: '0 auto',
+      padding: screens.md ? '48px' : '32px 16px',
+      width: '380px',
+    },
+    footer: {
+      marginTop: '16px',
+      textAlign: 'center',
+    },
+    section: {
+      alignItems: 'center',
+      display: 'flex',
+      height: screens.sm ? '100vh' : 'auto',
+      justifyContent: 'center',
+      padding: screens.md ? '64px 0' : '0',
+    },
+    text: {
+      color: '#8c8c8c',
+    },
+    title: {
+      fontSize: screens.md ? '24px' : '20px',
+    },
   };
 
   return (
-    <div className="login-container">
-      <Form form={form} onFinish={handleSubmit} className="login-form">
-        <Form.Item name="userName" rules={[{ required: true, message: 'Please input your username!' }]}>
-          <Input prefix={<UserOutlined style={{ fontSize: 15 }} />} placeholder="Username" />
-        </Form.Item>
-        <Form.Item name="password" rules={[{ required: true, message: 'Please input your Password!' }]}>
-          <Input prefix={<LockOutlined style={{ fontSize: 15 }} />} type="password" placeholder="Password" />
-        </Form.Item>
-        {/* <div>
-            <Form.Item name="remember" valuePropName="checked" initialValue={true}>
-                <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-            <a className="login-form-forgot" href="#">
-                Forgot password
-            </a>
-            </div> */}
+    <section style={styles.section}>
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <Title style={styles.title}>Sign in</Title>
+          <Text style={styles.text}>Welcome back ! Please enter your details below to sign in.</Text>
+        </div>
+        <Form
+          name="normal_login"
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          layout="vertical"
+          requiredMark="optional"
+        >
+          <Form.Item
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: 'Please input your username!',
+              },
+            ]}
+          >
+            <Input prefix={<UserOutlined />} placeholder="Username" />
+          </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            Log in
-          </Button>
-          Or <a href="#">register now!</a>
-        </Form.Item>
-      </Form>
-    </div>
+          <Form.Item
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: 'Please input your Password!',
+              },
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} type="password" placeholder="Password" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: '0px' }}>
+            <Button block="true" type="primary" htmlType="submit" loading={loading}>
+              Log in
+            </Button>
+            <div style={styles.footer}>
+              <Text style={styles.text}>Don't have an account?</Text> <Link href="/register">Sign up now</Link>
+            </div>
+          </Form.Item>
+        </Form>
+      </div>
+    </section>
   );
-};
-
-export default LoginPage;
+}
