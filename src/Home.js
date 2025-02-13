@@ -21,7 +21,6 @@ const Home = () => {
 
       try {
         const userData = await getUserDetails(token);
-        console.log(userData)
         setUser(userData);
       } catch (error) {
         console.error('Unauthorized access or API error:', error);
